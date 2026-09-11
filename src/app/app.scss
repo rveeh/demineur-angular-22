@@ -1,0 +1,54 @@
+:host {
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    button {
+        margin-bottom: 10px;
+    }
+    .row {
+        display: flex;
+        flex-direction: row;    
+        gap: 1px;
+        justify-content: space-between;
+        min-height: 20px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+    .boxes-row {
+        display: flex;
+        flex-direction: row;
+        .box {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #000;
+            background-color: lightgray;
+
+            &.hidden {
+                background-color: darkgray;
+            }
+            &.blue {
+                color: blue;
+            }
+            &.green {
+                color: green;
+            }
+            &.red {
+                color: red;
+            }
+            &.darkblue {
+               color: darkblue;
+            }
+            &.darkred {
+               color: darkred;
+            }
+            &.mine {
+              font-size: xx-large;
+              color: black;
+            }
+        }
+    }
+}
