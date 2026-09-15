@@ -1,7 +1,7 @@
 import { Component, computed, effect, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { form, FormField, FormRoot, max, min, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, max, min, required, validate } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -50,6 +50,15 @@ export class App {
       required(schemaPath.nbMines, {message: 'number is required'});
       max(schemaPath.nbMines, 1000, {message: 'maximum value is 1000'});
       min(schemaPath.nbMines, 1, {message: 'minimum value is 1'});
+      validate(schemaPath.nbMines, ({value}) => {
+      if (value() > this.width() * this.height() - 1) {
+        return {
+          kind: 'nbMines',
+          message: 'Number of mines must be less than the total number of boxes',
+        };
+      }
+      return null;
+    });
   });
 
   constructor() {
@@ -91,7 +100,6 @@ export class App {
   }
 
   private initMines( xClic: number, yClic: number): void {
-
     if (typeof Worker !== 'undefined') {
         // Create a new
         const worker = new Worker(new URL('./add-mines.worker', import.meta.url));
@@ -125,9 +133,6 @@ export class App {
   }
 
   public leftClic( x: number, y: number): void {
-    if(this.mines().length === 0) {
-      this.initMines(x, y);
-    }
     const b = this.boxes()[y][x];
     if(!b.hidden || b.flagged) {
       return;
@@ -138,6 +143,11 @@ export class App {
       box.hidden = false;
       return [...boxes];
     });
+
+    if(this.mines().length === 0) {
+      this.initMines(x, y);
+    }
+
     if(b.mine) {
       this.showAllBoxes();
       setTimeout(() => {
@@ -147,7 +157,6 @@ export class App {
     } else if(b.adjacentMines == 0){
       this.revealAdjacentBoxes(x, y);
     }
-
   }
 
   private revealAdjacentBoxes(x: number, y: number): void {
