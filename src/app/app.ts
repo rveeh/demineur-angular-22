@@ -91,47 +91,27 @@ export class App {
   }
 
   private initMines( xClic: number, yClic: number): void {
-    this.boxes.update((boxes) => {
-      for (let i = 0; i < this.nbMines(); i++) {
-        const x = Math.floor(Math.random() * this.width());
-        const y = Math.floor(Math.random() * this.height());
-        if(x === xClic && y === yClic) {
-          i--;
-          continue;
-        }
-       // console.log('Mine', x, y);
-        boxes[y][x].mine = true;
 
-        if(x+1 < this.width()) {
-          boxes[y][x+1].adjacentMines++;
-        }
-        if(x-1 >= 0) {
-          boxes[y][x-1].adjacentMines++;
-        }
-
-        if(y+1 < this.height()) {
-          boxes[y+1][x].adjacentMines++;
-          if( x+1 < this.width()) {
-            boxes[y+1][x+1].adjacentMines++;
-          }
-          if( x-1 >= 0) {
-            boxes[y+1][x-1].adjacentMines++;
-          }
-        }
-
-        if(y-1 >= 0) {
-          boxes[y-1][x].adjacentMines++;
-          if( x+1 < this.width()) {
-            boxes[y-1][x+1].adjacentMines++;
-          }
-           if( x-1 >= 0) {
-            boxes[y-1][x-1].adjacentMines++;
-          }
-        } 
+    if (typeof Worker !== 'undefined') {
+        // Create a new
+        const worker = new Worker(new URL('./add-mines.worker', import.meta.url));
+        worker.onmessage = ({data}) => {
+            this.boxes.set([...data]);
+        };
+        worker.postMessage({
+          nbMines: this.nbMines(),
+          xClic: xClic,
+          yClic: yClic,
+          width: this.width(),
+          height: this.height(),
+          boxes: this.boxes(),
+        });
+      } else {
+        console.error('Web workers are not supported in this environment.');
+        // Web workers are not supported in this environment.
+        // You should add a fallback so that your program still executes correctly.
       }
-     
-      return [...boxes];
-    });   
+   
   }
 
   public rightClic(event: MouseEvent, x: number, y: number): void {
@@ -178,7 +158,7 @@ export class App {
         const newY = y + i;
         if (newX >= 0 && newX < this.width() && newY >= 0 && newY < this.height()) {
           const box = boxes[newY][newX];
-          if (box.hidden && !box.flagged) {
+          if (box.hidden && !box.flagged && !box.mine) {
             box.hidden = false;
             if (box.adjacentMines === 0) {
               this.revealAdjacentBoxes(newX, newY);
