@@ -12,16 +12,23 @@ type AddMinesInput = {
 }
 
 addEventListener('message', ({ data }: { data: AddMinesInput }) => {
+  const mines: boolean[][] = Array.from({ length: data.height }, () =>
+    Array.from({ length: data.width }, () => false)
+  );
   for (let i = 0; i < data.nbMines; i++) {
         const x = Math.floor(Math.random() * data.width);
         const y = Math.floor(Math.random() * data.height);
-        if(x === data.xClic && y === data.yClic) {
+        if(x === data.xClic && y === data.yClic ||
+          mines[y][x]
+        ) {
           i--;
           continue;
         }
        // console.log('Mine', x, y);
+        mines[y][x] = true;
         data.boxes[y][x].mine = true;
         data.boxes[y][x].adjacentMines = 0;
+
 
         if(x+1 < data.width && !data.boxes[y][x+1].mine) {
           data.boxes[y][x+1].adjacentMines++;
