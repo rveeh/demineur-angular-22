@@ -1,4 +1,4 @@
-import { Component, computed, effect, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { form, FormField, FormRoot, max, min, required, validate } from '@angular/forms/signals';
@@ -41,14 +41,13 @@ export class App {
     nbMines: this.nbMines()
   });
   configForm = form(this.model, (schemaPath) => {
-      required(schemaPath.width, {message: 'number is required'});
+      required(schemaPath.width, {message: 'width is required'});
       max(schemaPath.width, 50, {message: 'maximum value is 50'});
       min(schemaPath.width, 5, {message: 'minimum value is 5'});
-      required(schemaPath.height, {message: 'number is required'});
+      required(schemaPath.height, {message: 'height is required'});
       max(schemaPath.height, 50, {message: 'maximum value is 50'});
       min(schemaPath.height, 5, {message: 'minimum value is 5'});
-      required(schemaPath.nbMines, {message: 'number is required'});
-      max(schemaPath.nbMines, 1000, {message: 'maximum value is 1000'});
+      required(schemaPath.nbMines, {message: 'number of mines is required'});
       min(schemaPath.nbMines, 1, {message: 'minimum value is 1'});
       validate(schemaPath.nbMines, ({value}) => {
       if (value() > this.width() * this.height() - 1) {
@@ -60,18 +59,6 @@ export class App {
       return null;
     });
   });
-
-  constructor() {
-    effect(() => {
-      if(this.boxes().length > 0 && this.allMinesFlagged() && !this.notMineFlagged()) {
-        this.showAllBoxes(true);
-        setTimeout(() => {
-          alert('You Win!');
-          this.initGame();
-        }, 300);
-      }
-    })
-  }
 
   private showAllBoxes(notMine = false): void{
     for (const row of this.boxes()) {
@@ -130,6 +117,7 @@ export class App {
       box.flagged = !box.flagged;
       return [...boxes];
     });
+    this.checkSuccess();
   }
 
   public leftClic( x: number, y: number): void {
@@ -157,7 +145,19 @@ export class App {
     } else if(b.adjacentMines == 0){
       this.revealAdjacentBoxes(x, y);
     }
+    this.checkSuccess();
   }
+
+  private checkSuccess(): void {
+     if(this.boxes().length > 0 && this.allMinesFlagged() && !this.notMineFlagged()) {
+        this.showAllBoxes(true);
+        setTimeout(() => {
+          alert('You Win!');
+          this.initGame();
+        }, 300);
+      }
+  }
+  
 
   private revealAdjacentBoxes(x: number, y: number): void {
     const boxes = this.boxes();
