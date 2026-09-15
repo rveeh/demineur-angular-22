@@ -29,7 +29,7 @@ export class App {
 
   public readonly mines = computed(() => this.boxes().flatMap(row => row.filter(box => box.mine)));
   public readonly allMinesFlagged = computed(() => {
-    const mines =this.mines();
+    const mines = this.mines();
     if(mines.length === 0) return false;
     return mines.every(mine => mine.flagged);
   });
@@ -73,7 +73,7 @@ export class App {
     })
   }
 
-  private showAllBoxes(notMine = false) {
+  private showAllBoxes(notMine = false): void{
     for (const row of this.boxes()) {
       for (const box of row) {
         if(notMine && box.mine) continue;
@@ -83,7 +83,7 @@ export class App {
   }
 
   public onSubmit(): void {
-    const config =this.configForm().value();
+    const config = this.configForm().value();
     this.width.set(config.width);
     this.height.set(config.height);
     this.nbMines.set(config.nbMines);
@@ -91,7 +91,7 @@ export class App {
     this.initGame();
   }
 
-  private initGame() : void {
+  private initGame(): void {
     const initBoxes: Box[][] = Array.from({ length: this.height() }, () =>
       Array.from({ length: this.width() }, () => new Box())
     );
