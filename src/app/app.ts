@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { form, FormField, FormRoot, max, min, required, validate } from '@angular/forms/signals';
@@ -60,6 +60,18 @@ export class App {
     });
   });
 
+  constructor() {
+    effect(() => {
+        if(this.boxes().length > 0 && this.allMinesFlagged() && !this.notMineFlagged()) {
+        this.showAllBoxes(true);
+        setTimeout(() => {
+          alert('You Win!');
+          this.initGame();
+        }, 300);
+      }
+    });
+  }
+
   private showAllBoxes(notMine = false): void{
     for (const row of this.boxes()) {
       for (const box of row) {
@@ -117,7 +129,6 @@ export class App {
       box.flagged = !box.flagged;
       return [...boxes];
     });
-    this.checkSuccess();
   }
 
   public leftClic( x: number, y: number): void {
@@ -145,19 +156,7 @@ export class App {
     } else if(b.adjacentMines == 0){
       this.revealAdjacentBoxes(x, y);
     }
-    this.checkSuccess();
   }
-
-  private checkSuccess(): void {
-     if(this.boxes().length > 0 && this.allMinesFlagged() && !this.notMineFlagged()) {
-        this.showAllBoxes(true);
-        setTimeout(() => {
-          alert('You Win!');
-          this.initGame();
-        }, 300);
-      }
-  }
-  
 
   private revealAdjacentBoxes(x: number, y: number): void {
     const boxes = this.boxes();
